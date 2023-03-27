@@ -1,0 +1,47 @@
+set cut_paste_input [stack 0]
+version 12.2 v2
+push $cut_paste_input
+NoOp {
+ name AE_MoveNodes
+ selected true
+ xpos 12041
+ ypos -2971
+ addUserKnob {20 User}
+ addUserKnob {26 textHeader l "" +STARTLINE T "<font size = 5>AE<font size = 50>&#8596;<b>Move</b>&#8597;<font size = 5>Nodes"}
+ addUserKnob {26 _1 l "" +STARTLINE T " "}
+ addUserKnob {2 getFile l "menu.py path" t "Browse and select the Menu.py file in your system."}
+ addUserKnob {1 moveNodesCode +INVISIBLE}
+ moveNodesCode "######## AE_moveNodes #### START ##################################################\n\nfrom time import sleep\nfrom threading import Thread\n\ndef AE_moveNodes(direction,gain):\n\n    nodes = nuke.selectedNodes()\n    gain = int(gain)\n\n    #### RIGHT ###############################\n    def moveRight():          \n        for x in range(gain):\n            for n in nodes:\n                n.setXpos(int(n\['xpos'].value()+(gain-x)))\n            sleep(0.001)\n            print \"\"\n    \n    \n    #########################################\n\n    #### LEFT ###############################\n    def moveLeft():          \n        for x in range(gain):\n            for n in nodes:\n                n.setXpos(int(n\['xpos'].value()-(gain-x)))\n            sleep(0.001)\n            print \"\"\n    \n    \n    #########################################        \n\n    #### UP ###############################\n    def moveUp():          \n        for x in range(gain):\n            for n in nodes:\n                n.setYpos(int(n\['ypos'].value()-(gain-x)))\n            sleep(0.001)\n            print \"\"\n    \n    \n    #########################################   \n     \n    #### DOWN ###############################\n    def moveDown():          \n        for x in range(gain):\n            for n in nodes:\n                n.setYpos(int(n\['ypos'].value()+(gain-x)))\n            sleep(0.001)\n            print \"\"\n    \n    \n    ######################################### \n\n\n    ###### DIRECTION DEFINE #################\n    if direction == \"Right\":\n        countdown_thread = threading.Thread(target = moveRight)\n        countdown_thread.start()\n    elif direction == \"Left\":\n        countdown_thread = threading.Thread(target = moveLeft)\n        countdown_thread.start()\n    elif direction == \"Up\":  \n        countdown_thread = threading.Thread(target = moveUp)\n        countdown_thread.start()\n    elif direction == \"Down\":   \n        countdown_thread = threading.Thread(target = moveDown)\n        countdown_thread.start()\n\n\n\nutilitiesMenu.addCommand(\"Edit/Node/AE_moveNodes/SH_Right\", 'AE_moveNodes(\"Right\",\"MOVENODES_GAIN\")', \"MOVENODES_RIGHT\", shortcutContext=2)\nutilitiesMenu.addCommand(\"Edit/Node/AE_moveNodes/SH_Left\", 'AE_moveNodes(\"Left\",\"MOVENODES_GAIN\")', \"MOVENODES_LEFT\", shortcutContext=2)\nutilitiesMenu.addCommand(\"Edit/Node/AE_moveNodes/SH_Up\", 'AE_moveNodes(\"Up\",\"MOVENODES_GAIN\")', \"MOVENODES_UP\", shortcutContext=2)\nutilitiesMenu.addCommand(\"Edit/Node/AE_moveNodes/SH_Down\", 'AE_moveNodes(\"Down\",\"MOVENODES_GAIN\")', \"MOVENODES_DOWN\", shortcutContext=2)\n\nutilitiesMenu.addCommand(\"Edit/Node/AE_moveNodes/CT_Right\", 'AE_moveNodes(\"Right\",\"MOVENODES_BOOST_GAIN\")', \"MOVENODES_BOOST_RIGHT\", shortcutContext=2)\nutilitiesMenu.addCommand(\"Edit/Node/AE_moveNodes/CT_Left\", 'AE_moveNodes(\"Left\",\"MOVENODES_BOOST_GAIN\")', \"MOVENODES_BOOST_LEFT\", shortcutContext=2)\nutilitiesMenu.addCommand(\"Edit/Node/AE_moveNodes/CT_Up\", 'AE_moveNodes(\"Up\",\"MOVENODES_BOOST_GAIN\")', \"MOVENODES_BOOST_UP\", shortcutContext=2)\nutilitiesMenu.addCommand(\"Edit/Node/AE_moveNodes/CT_Down\", 'AE_moveNodes(\"Down\",\"MOVENODES_BOOST_GAIN\")', \"MOVENODES_BOOST_DOWN\", shortcutContext=2)\n######## AE_moveNodes #### END ####################################################"
+ addUserKnob {26 ""}
+ addUserKnob {22 addMoveNodes l "<font  color = orange><b>Add Move Nodes" T "moveNodesCode = nuke.thisNode()\['moveNodesCode'].value()\n\n##### moveNodes ###############################\n\nuserRight = nuke.thisNode()\['rightKey'].value()\nuserLeft = nuke.thisNode()\['leftKey'].value()\nuserUp = nuke.thisNode()\['upKey'].value()\nuserDown = nuke.thisNode()\['downKey'].value()\nuserGain = int(nuke.thisNode()\['moveNodesGain'].value())\n\nmoveNodesCode = moveNodesCode.replace(\"MOVENODES_RIGHT\", str(userRight))\nmoveNodesCode = moveNodesCode.replace(\"MOVENODES_LEFT\", str(userLeft))\nmoveNodesCode = moveNodesCode.replace(\"MOVENODES_UP\", str(userUp))\nmoveNodesCode = moveNodesCode.replace(\"MOVENODES_DOWN\", str(userDown))\nmoveNodesCode = moveNodesCode.replace(\"MOVENODES_GAIN\", str(userGain))\n\n##### moveNodes Boost ###############################\n\nuserBoostRight = nuke.thisNode()\['rightBoostKey'].value()\nuserBoostLeft = nuke.thisNode()\['leftBoostKey'].value()\nuserBoostUp = nuke.thisNode()\['upBoostKey'].value()\nuserBoostDown = nuke.thisNode()\['downBoostKey'].value()\nuserBoostGain = int(nuke.thisNode()\['moveNodesBoostGain'].value())\n\nmoveNodesCode = moveNodesCode.replace(\"MOVENODES_BOOST_RIGHT\", str(userBoostRight))\nmoveNodesCode = moveNodesCode.replace(\"MOVENODES_BOOST_LEFT\", str(userBoostLeft))\nmoveNodesCode = moveNodesCode.replace(\"MOVENODES_BOOST_UP\", str(userBoostUp))\nmoveNodesCode = moveNodesCode.replace(\"MOVENODES_BOOST_DOWN\", str(userBoostDown))\nmoveNodesCode = moveNodesCode.replace(\"MOVENODES_BOOST_GAIN\", str(userBoostGain))\n\n\n\nfile_path = nuke.thisNode()\['getFile'].value()\n\nwith open(file_path, \"a\") as file:\n    file.write('\\n' + moveNodesCode)\n\nnuke.message(\"AE_MoveNodes Function added to the menu.py file\\nplease restart Nuke to be able to use the function\")" +STARTLINE}
+ addUserKnob {22 clearCode l "<b>Clear Code" -STARTLINE T "file_path = nuke.thisNode()\['getFile'].value()\n\nstart_context = \"######## AE_moveNodes #### START ##################################################\"\nend_context = \"######## AE_moveNodes #### END ####################################################\"\n\n# Open the original file for reading and writing\nwith open(file_path, \"r+\") as file:\n    # Read the file and store its contents as a list of lines\n    lines = file.readlines()\n    # Reset the file pointer to the beginning\n    file.seek(0)\n    # Traverse the list of lines and remove the lines between the start and end context\n    inside_range = False\n    for line in lines:\n        if start_context in line:\n            inside_range = True\n        elif end_context in line:\n            inside_range = False\n            continue\n        if not inside_range:\n            file.write(line)\n    # Truncate the file at the current position (i.e. remove any extra lines)\n    file.truncate()\n\n\nnuke.message(\"AE_MoveNodes Function removed from the menu.py file\\nplease restart Nuke to be able to see the result\")"}
+ addUserKnob {26 ""}
+ addUserKnob {20 scaleNodesGRP l "Scale Nodes Keys" n 1}
+ addUserKnob {3 moveNodesGain l <b><i>Gain}
+ moveNodesGain 15
+ addUserKnob {1 rightKey l "<b><font color = orange>Right"}
+ rightKey right
+ addUserKnob {1 leftKey l "<b><font color = orange>Left" -STARTLINE}
+ leftKey left
+ addUserKnob {1 upKey l "<b><font color = orange>Up" -STARTLINE}
+ upKey up
+ addUserKnob {1 downKey l "<b><font color = orange>Down" -STARTLINE}
+ downKey down
+ addUserKnob {26 ""}
+ addUserKnob {3 moveNodesBoostGain l "<b><i>Boost Gain"}
+ moveNodesBoostGain 25
+ addUserKnob {1 rightBoostKey l "<b><font color = orange>Right Boost"}
+ rightBoostKey ctrl+right
+ addUserKnob {1 leftBoostKey l "<b><font color = orange>Left Boost" -STARTLINE}
+ leftBoostKey ctrl+left
+ addUserKnob {1 upBoostKey l "<b><font color = orange>Up Boost" -STARTLINE}
+ upBoostKey ctrl+up
+ addUserKnob {1 downBoostKey l "<b><font color = orange>Down Boost" -STARTLINE}
+ downBoostKey ctrl+down
+ addUserKnob {22 updateButton l "<b><font color = green>Update Keys" T "nuke.thisNode()\['clearCode'].execute()\nnuke.thisNode()\['addMoveNodes'].execute()\n" +STARTLINE}
+ addUserKnob {20 endGroup n -1}
+ addUserKnob {26 ""}
+ addUserKnob {26 textTail l "" +STARTLINE T "<b><i><font color = gray>.: by Ali Ehtemami"}
+ addUserKnob {20 tab l Info}
+ addUserKnob {26 text l "" +STARTLINE T "Instructions on how to use this tool:\n\n1. Click on the browser icon and locate the \"menu.py\" file in your .nuke folder.\n2. Set the hotkeys to your preference.\n3. Click on \"Add Scale Nodes\".\n4. Use the hotkeys to move right, left, up, and down.\n\nAdditionally:\n\n- You can remove the AE_Scale_Nodes code from the \"menu.py\" file by clicking on the \"Clear Code\" button.\n- You can update the hotkeys by clicking on the \"Update\" button.\n\nSpecial thanks to Mateusz Krząstek for fixing some DAG animation errors.\n\naliehtemami.com\nali.ehtemami1@gmail.com"}
+}
