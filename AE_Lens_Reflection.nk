@@ -1,0 +1,563 @@
+set cut_paste_input [stack 0]
+version 13.2 v8
+push $cut_paste_input
+Group {
+name AE_Lens_Reflection1
+tile_color 0xaa55ffff
+selected true
+xpos 4572
+ypos 9876
+addUserKnob {20 User}
+addUserKnob {26 header l "" +STARTLINE T "<h1><b>AE Lens Reflection|<font color= darkGray>n<font color= gray>o<font color= dimGrey>i"}
+addUserKnob {26 ""}
+addUserKnob {4 result l Result M {"Effect only" Over ""}}
+addUserKnob {26 _5 l "" +STARTLINE T " "}
+addUserKnob {30 keyerRange l "Keyer range"}
+keyerRange {0.5 32}
+addUserKnob {26 _1 l "<font color = orange><i>pre-process"}
+addUserKnob {41 framesbehind l "Frames to look at" T TimeEcho2.framesbehind}
+addUserKnob {41 defocus T Defocus2.defocus}
+addUserKnob {41 ratio l "aspect ratio" -STARTLINE T Defocus2.ratio}
+addUserKnob {41 size T Soften2.size}
+addUserKnob {41 mix -STARTLINE T Soften2.mix}
+addUserKnob {41 mix_1 l mix T Merge16.mix}
+addUserKnob {26 _2 l "<font color = orange><i>Strikes"}
+addUserKnob {41 scale T iTransform3.scale}
+addUserKnob {41 mix_2 l mix T Merge23.mix}
+addUserKnob {26 _3 l "<font color = orange><i>Side Haze"}
+addUserKnob {41 BlurLength T DirBlurWrapper2.BlurLength}
+addUserKnob {41 mix_3 l mix T Merge24.mix}
+addUserKnob {26 _4 l "<font color = orange><i>Lens Dirt"}
+addUserKnob {41 mix_4 l mix T Merge6.mix}
+addUserKnob {26 ""}
+addUserKnob {26 text l "" +STARTLINE T "<font color = gray><i>.: by Ali Ehtemami"}
+}
+Input {
+inputs 0
+name Input
+xpos 509
+ypos 108
+}
+Dot {
+name Dot4
+xpos 543
+ypos 164
+}
+set N8cd94b20 [stack 0]
+Keyer {
+operation "luminance key"
+range {{keyerRange} {keyerRange} 1 1}
+name Keyer6
+xpos 509
+ypos 237
+}
+Premult {
+name Premult5
+tile_color 0x333333ff
+xpos 509
+ypos 304
+}
+Mirror2 {
+flip true
+flop true
+name Mirror2_2
+tile_color 0x333333ff
+xpos 509
+ypos 330
+}
+TimeEcho {
+mode Average
+framesbehind 2
+name TimeEcho2
+xpos 509
+ypos 390
+}
+Defocus {
+channels rgba
+defocus 38
+ratio 0.5
+name Defocus2
+xpos 509
+ypos 416
+}
+Soften {
+channels rgba
+amount 1
+size 200
+mix 0.71
+name Soften2
+xpos 509
+ypos 443
+}
+Dot {
+name Dot21
+xpos 543
+ypos 501
+}
+set Neecf14a0 [stack 0]
+Dot {
+name Dot18
+xpos 543
+ypos 535
+}
+set Neecf64d0 [stack 0]
+Blur {
+channels rgba
+size {0 2300}
+name Blur9
+xpos 509
+ypos 568
+}
+Group {
+name CropPadded1
+tile_color 0xad7cbcff
+gl_color 0xff
+xpos 509
+ypos 594
+addUserKnob {20 croppadded l "Crop Padded"}
+addUserKnob {7 padding R 0 500}
+padding 100
+addUserKnob {41 softness T Crop.softness}
+addUserKnob {41 reformat T Crop.reformat}
+addUserKnob {41 crop l "black outside" T Crop.crop}
+addUserKnob {41 intersect T Crop.intersect}
+}
+Input {
+inputs 0
+name Input1
+xpos 619
+ypos -558
+}
+Crop {
+box {{-parent.padding} {-parent.padding} {width+parent.padding} {height+parent.padding}}
+intersect true
+name Crop
+selected true
+xpos 619
+ypos -518
+}
+Output {
+name Output1
+xpos 619
+ypos -418
+}
+end_group
+Dot {
+name Dot23
+xpos 543
+ypos 627
+}
+set Neeff7bb0 [stack 0]
+Shuffle2 {
+fromInput1 {{0} B}
+fromInput2 {{0} B}
+mappings "4 black -1 -1 rgba.red 0 0 black -1 -1 rgba.green 0 1 black -1 -1 rgba.blue 0 2 black -1 -1 rgba.alpha 0 3"
+name Shuffle13
+label "\[value in1]"
+xpos 345
+ypos 617
+}
+Radial {
+area {0 0 {input.width} {input.height}}
+name Radial2
+xpos 345
+ypos 655
+}
+Blur {
+channels rgba
+size 2600
+quality 5
+name Blur8
+xpos 345
+ypos 681
+}
+push $Neeff7bb0
+Group {
+inputs 2
+name iTransform3
+tile_color 0xa97bb2ff
+xpos 509
+ypos 681
+addUserKnob {20 iTransform}
+addUserKnob {41 matrix T Transform4.matrix}
+addUserKnob {41 channels T STMap.channels}
+addUserKnob {26 ""}
+addUserKnob {41 translate T Transform4.translate}
+addUserKnob {41 rotate T Transform4.rotate}
+addUserKnob {41 scale T Transform4.scale}
+addUserKnob {41 skewX l "skew X" T Transform4.skewX}
+addUserKnob {41 skewY l "skew Y" T Transform4.skewY}
+addUserKnob {41 skew_order l "skew order" T Transform4.skew_order}
+addUserKnob {41 center T Transform4.center}
+addUserKnob {41 invert_matrix l invert T Transform4.invert_matrix}
+addUserKnob {41 filter T STMap.filter}
+addUserKnob {41 clamp -STARTLINE T Transform4.clamp}
+addUserKnob {41 black_outside l "black outside" -STARTLINE T Transform4.black_outside}
+addUserKnob {41 motionblur T Transform4.motionblur}
+addUserKnob {41 shutter T Transform4.shutter}
+addUserKnob {41 shutteroffset l "shutter offset" T Transform4.shutteroffset}
+addUserKnob {41 shuttercustomoffset l "" -STARTLINE T Transform4.shuttercustomoffset}
+addUserKnob {26 ""}
+addUserKnob {41 mix T Keymix.mix}
+}
+Input {
+inputs 0
+name Matte
+xpos 505
+ypos 30
+number 1
+}
+Dot {
+name Dot3
+xpos 539
+ypos 457
+}
+Input {
+inputs 0
+name Image
+xpos -105
+ypos 31
+}
+Dot {
+name Dot7
+xpos -71
+ypos 226
+}
+set Nf30fcf50 [stack 0]
+Expression {
+expr0 (x+0.5)/width
+expr1 (y+0.5)/height
+expr2 0
+expr3 0
+name Expression1
+xpos 37
+ypos 222
+}
+set Nf2ff1f50 [stack 0]
+Transform {
+scale 2
+center {{input.width/2} {input.height/2}}
+shutteroffset centred
+name Transform4
+xpos 205
+ypos 222
+}
+push $Nf2ff1f50
+Keymix {
+inputs 3
+channels {{{STMap.channels}}}
+name Keymix
+xpos 37
+ypos 447
+}
+push $Nf30fcf50
+STMap {
+inputs 2
+channels rgba
+uv rgb
+name STMap
+selected true
+xpos -105
+ypos 447
+}
+Output {
+name Output1
+xpos -105
+ypos 696
+}
+end_group
+set Nf31f2d70 [stack 0]
+Viewer {
+frame_range 1001-1074
+viewerProcess "BalancedView (rec1886)"
+name Viewer1
+xpos 619
+ypos 594
+}
+push $Neecf64d0
+Dot {
+name Dot19
+xpos 238
+ypos 535
+}
+Blur {
+channels rgba
+size 4000
+quality 5
+name Blur7
+xpos 204
+ypos 583
+}
+Grade {
+white 250
+black_clamp false
+name Grade10
+xpos 204
+ypos 609
+}
+Crop {
+box {0 0 {input.width} {input.height}}
+name Crop1
+xpos 204
+ypos 635
+}
+Keyer {
+operation "luminance key"
+name Keyer7
+xpos 204
+ypos 661
+}
+Input {
+inputs 0
+name InputLensDirt
+xpos 19
+ypos 740
+number 1
+}
+Keyer {
+operation "luminance key"
+range {0 1.5 1 1}
+name Keyer8
+xpos 19
+ypos 854
+}
+Group {
+inputs 2
+name iTransform2
+tile_color 0xa97bb2ff
+xpos 204
+ypos 860
+addUserKnob {20 iTransform}
+addUserKnob {41 matrix T Transform4.matrix}
+addUserKnob {41 channels T STMap.channels}
+addUserKnob {26 ""}
+addUserKnob {41 translate T Transform4.translate}
+addUserKnob {41 rotate T Transform4.rotate}
+addUserKnob {41 scale T Transform4.scale}
+addUserKnob {41 skewX l "skew X" T Transform4.skewX}
+addUserKnob {41 skewY l "skew Y" T Transform4.skewY}
+addUserKnob {41 skew_order l "skew order" T Transform4.skew_order}
+addUserKnob {41 center T Transform4.center}
+addUserKnob {41 invert_matrix l invert T Transform4.invert_matrix}
+addUserKnob {41 filter T STMap.filter}
+addUserKnob {41 clamp -STARTLINE T Transform4.clamp}
+addUserKnob {41 black_outside l "black outside" -STARTLINE T Transform4.black_outside}
+addUserKnob {41 motionblur T Transform4.motionblur}
+addUserKnob {41 shutter T Transform4.shutter}
+addUserKnob {41 shutteroffset l "shutter offset" T Transform4.shutteroffset}
+addUserKnob {41 shuttercustomoffset l "" -STARTLINE T Transform4.shuttercustomoffset}
+addUserKnob {26 ""}
+addUserKnob {41 mix T Keymix.mix}
+}
+Input {
+inputs 0
+name Matte
+xpos 505
+ypos 30
+number 1
+}
+Dot {
+name Dot3
+xpos 539
+ypos 457
+}
+Input {
+inputs 0
+name Image
+xpos -105
+ypos 31
+}
+Dot {
+name Dot7
+xpos -71
+ypos 226
+}
+set Nee1f4940 [stack 0]
+Expression {
+expr0 (x+0.5)/width
+expr1 (y+0.5)/height
+expr2 0
+expr3 0
+name Expression1
+xpos 37
+ypos 222
+}
+set Nee1f9830 [stack 0]
+Transform {
+translate {20 20}
+center {{input.width/2} {input.height/2}}
+shutteroffset centred
+name Transform4
+xpos 205
+ypos 222
+}
+push $Nee1f9830
+Keymix {
+inputs 3
+channels {{{STMap.channels}}}
+name Keymix
+xpos 37
+ypos 447
+}
+push $Nee1f4940
+STMap {
+inputs 2
+channels rgba
+uv rgb
+name STMap
+selected true
+xpos -105
+ypos 447
+}
+Output {
+name Output1
+xpos -105
+ypos 696
+}
+end_group
+push $Nf31f2d70
+Transform {
+scale {{1-parent.iTransform3.Transform4.scale/20} 1}
+center {{input.width/2} {input.height/2}}
+shutteroffset centred
+name Transform2
+xpos 509
+ypos 707
+}
+Crop {
+box {0 0 {input.width} {input.height}}
+name Crop9
+xpos 509
+ypos 733
+}
+set Nf29ff150 [stack 0]
+DirBlurWrapper {
+channels rgba
+holdout -rgba.alpha
+BlurCenter {{input.width/2} {input.height/2}}
+BlurLength 700
+name DirBlurWrapper2
+xpos 509
+ypos 759
+}
+Crop {
+box {0 0 {input.width} {input.height}}
+name Crop5
+xpos 509
+ypos 785
+}
+Grade {
+white 4
+black_clamp false
+name Grade11
+xpos 509
+ypos 822
+}
+Merge2 {
+inputs 2
+operation stencil
+mix 0
+name Merge6
+xpos 509
+ypos 860
+}
+Dot {
+name Dot20
+xpos 543
+ypos 900
+}
+push $Nf29ff150
+push $Neecf14a0
+push $N8cd94b20
+Shuffle2 {
+fromInput1 {{0} B}
+fromInput2 {{0} B}
+mappings "4 black -1 -1 rgba.red 0 0 black -1 -1 rgba.green 0 1 black -1 -1 rgba.blue 0 2 black -1 -1 rgba.alpha 0 3"
+name Shuffle11
+label "\[value in1]"
+xpos 801
+ypos 376
+}
+Merge2 {
+inputs 2
+bbox A
+mix 0.1
+name Merge16
+xpos 801
+ypos 497
+}
+Merge2 {
+inputs 2
+mix 0.14
+name Merge23
+xpos 801
+ypos 733
+}
+Merge2 {
+inputs 2
+mix 0.24
+name Merge24
+xpos 801
+ypos 896
+}
+Group {
+name CropPadded2
+tile_color 0xad7cbcff
+gl_color 0xff
+xpos 801
+ypos 922
+addUserKnob {20 croppadded l "Crop Padded"}
+addUserKnob {7 padding R 0 500}
+padding 100
+addUserKnob {41 softness T Crop.softness}
+addUserKnob {41 reformat T Crop.reformat}
+addUserKnob {41 crop l "black outside" T Crop.crop}
+addUserKnob {41 intersect T Crop.intersect}
+}
+Input {
+inputs 0
+name Input1
+xpos 619
+ypos -558
+}
+Crop {
+box {{-parent.padding} {-parent.padding} {width+parent.padding} {height+parent.padding}}
+intersect true
+name Crop
+selected true
+xpos 619
+ypos -518
+}
+Output {
+name Output1
+xpos 619
+ypos -418
+}
+end_group
+set Nf27f60c0 [stack 0]
+push $N8cd94b20
+Dot {
+name Dot1
+xpos 1130
+ypos 164
+}
+Merge2 {
+inputs 2
+name Merge1
+xpos 1096
+ypos 922
+}
+push $Nf27f60c0
+Switch {
+inputs 2
+which {{result}}
+name Switch1
+xpos 801
+ypos 975
+}
+Output {
+name Output1
+xpos 801
+ypos 1022
+}
+end_group
