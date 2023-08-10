@@ -1,0 +1,168 @@
+set cut_paste_input [stack 0]
+version 13.2 v8
+push $cut_paste_input
+Group {
+name AE_MatteQC1
+tile_color 0xff9e00ff
+note_font "Bitstream Vera Sans Bold"
+selected true
+xpos 4600
+ypos -5068
+addUserKnob {20 User}
+addUserKnob {22 exe l "<h1><b><font color='orange'>Execute</font></b>" T "node = nuke.thisNode()\n\n# list all input channels\n\nchannels = node.channels()\nchannels_list = \[]\n\n# list of channels that not going to the process\n\ntxt = nuke.thisNode()\['userin'].value()\nexpt = tuple(map(str, txt.split(',')))\n\n\n# filter channels and list as layers\nchannels_list = \[l for l in nuke.thisNode().channels() if not l.startswith(expt)]\n\nif nuke.thisNode()\['mode'].value() == \"Layers\":\n    channels_list = list(set(\[c.split('.')\[0] for c in channels_list]))\n    #channels_list = layers.sort()\nelse:\n    pass\n\n# list all the knobs\nin_user_tab = False\nknoblist = \[]\nxplist = \[]\nfor n in range(node.numKnobs()):\n    cur_knob = node.knob(n)\n    is_tab = isinstance(cur_knob, nuke.Tab_Knob)\n    if is_tab and cur_knob.name() == \"User\":\n        in_user_tab = True\n    elif is_tab and in_user_tab:\n        in_user_tab = False\n    if in_user_tab:\n        knoblist.append(cur_knob)\n\n# REMOVE all the TEXT and Boolean knobs\nfor k in knoblist:\n    if k.Class() == \"Boolean_Knob\" or k.Class() == \"Text_Knob\":\n        knobs = node.knobs()\n        node.removeKnob(knobs\[k.name()])\n\n\n# MAKING NEW KNOBS\n\n# Making Divider\nknob = nuke.Text_Knob(\"divider\",\"\")\nnode.addKnob(knob)\n\n# RANDOM COLOR\ndef random_color():\n    import random\n    \n    color = \[]\n    red = int(random.randrange(0, 255))\n    color.append(red)\n    green = int(random.randrange(0, 255))\n    color.append(green)\n    blue = int(random.randrange(0, 255))\n    color.append(blue)\n    color.append(0.0)\n    return color\n\n# RGB to HEX\ndef rgb_to_hex(r, g, b):\n  return ('\{:X\}\{:X\}\{:X\}').format(r, g, b)\n\n# making channels knobs as Boolean knob\ndict = \{\}\nfor k in channels_list:\n    color = random_color()\n    dict.update(\{k:color\})\n    hex = rgb_to_hex(color\[0], color\[1], color\[2])\n    hash = \"\"\n    knob = nuke.Boolean_Knob(k,\"<b><font color=\\\"\"+\"#\"+hex+\"\\\">\"+k+\"</font></b>\", True)\n    knob.setFlag(0x1000)\n    node.addKnob(knob)\n\nknob = nuke.Text_Knob(\"divider\",\"\")\nnode.addKnob(knob)\nknob = nuke.Text_Knob(\"divider\",\"\",\"<h3><font color=#515151>.: by Ali Ehtemami\")\nnode.addKnob(knob)\n\nwith node:\n    \n# REMOVE grade nodes\n    grades = nuke.allNodes('Grade')\n    for g in grades:\n        nuke.delete(g)\n    nuke.toNode('Multiply').setSelected(True)\n\n# CREATE GRADE    \n    def create_grade(index):\n        \n        nuke.createNode('Grade', inpanel = False)\n        nuke.selectedNode()\['white'].setValue(0)\n        color = (dict\[index])\n        color = \[float(c)/255 for c in color]\n        nuke.selectedNode()\['add'].setValue(color)\n        if nuke.thisNode()\['mode'].value() == \"Channels\":\n            nuke.selectedNode()\['maskChannelInput'].setValue(index)\n        else:\n            nuke.selectedNode()\['maskChannelInput'].setValue(index+nuke.thisNode()\['alpha'].value())\n        exp = \"1-\"+index\n        nuke.selectedNode()\['disable'].setExpression(exp)\n        nuke.selectedNode()\['mix'].setExpression(\"overallmix\")\n    \n    index = 0\n    for i in channels_list:\n        create_grade(i)\n" +STARTLINE}
+addUserKnob {4 mode l Mode M {Channels Layers}}
+addUserKnob {4 alpha l "alpha from" -STARTLINE M {.alpha .red .matte ""}}
+addUserKnob {41 saturation T Saturation.saturation}
+addUserKnob {41 value T Multiply.value}
+addUserKnob {7 overallmix l mix}
+overallmix 0.5
+addUserKnob {1 userin l "Exclude List"}
+userin rgb,rgba,alpha,depth,degrain,plate,paintplate
+addUserKnob {26 divider l "" +STARTLINE}
+}
+Input {
+inputs 0
+name Input
+xpos -152
+ypos -143
+}
+Saturation {
+saturation 0
+name Saturation
+xpos -152
+ypos -68
+}
+Multiply {
+channels rgb
+value 0.5
+name Multiply
+xpos -152
+ypos -25
+}
+add_layer {matte_bg matte_bg.red matte_bg.green matte_bg.blue matte_bg.alpha}
+Grade {
+white 0
+add {0.07843137255 0.7176470588 0.6588235294 0}
+black_clamp false
+maskChannelInput matte_bg.red
+mix {{overallmix}}
+name Grade1
+disable {{1-matte_bg.red}}
+}
+Grade {
+white 0
+add {0.2745098039 0.2509803922 0.3529411765 0}
+black_clamp false
+maskChannelInput matte_bg.green
+mix {{overallmix}}
+name Grade2
+disable {{1-matte_bg.green}}
+}
+Grade {
+white 0
+add {0.6901960784 0.1803921569 0.9529411765 0}
+black_clamp false
+maskChannelInput matte_bg.blue
+mix {{overallmix}}
+name Grade3
+disable {{1-matte_bg.blue}}
+}
+Grade {
+white 0
+add {0.4274509804 0.07843137255 0.01176470588 0}
+black_clamp false
+maskChannelInput matte_bg.alpha
+mix {{overallmix}}
+name Grade4
+disable {{1-matte_bg.alpha}}
+}
+add_layer {matte_fg matte_fg.red matte_fg.green matte_fg.blue matte_fg.alpha}
+Grade {
+white 0
+add {0.2666666667 0.1764705882 0.6 0}
+black_clamp false
+maskChannelInput matte_fg.red
+mix {{overallmix}}
+name Grade5
+disable {{1-matte_fg.red}}
+}
+Grade {
+white 0
+add {0.3137254902 0.8784313725 0.9058823529 0}
+black_clamp false
+maskChannelInput matte_fg.green
+mix {{overallmix}}
+name Grade6
+disable {{1-matte_fg.green}}
+}
+Grade {
+white 0
+add {0.8941176471 0.2274509804 0.568627451 0}
+black_clamp false
+maskChannelInput matte_fg.blue
+mix {{overallmix}}
+name Grade7
+disable {{1-matte_fg.blue}}
+}
+Grade {
+white 0
+add {0.2509803922 0.2941176471 0.9725490196 0}
+black_clamp false
+maskChannelInput matte_fg.alpha
+mix {{overallmix}}
+name Grade8
+disable {{1-matte_fg.alpha}}
+}
+add_layer {matte_mg matte_mg.red matte_mg.green matte_mg.blue matte_mg.alpha}
+Grade {
+white 0
+add {0.2666666667 0.2470588235 0.1764705882 0}
+black_clamp false
+maskChannelInput matte_mg.red
+mix {{overallmix}}
+name Grade9
+disable {{1-matte_mg.red}}
+}
+Grade {
+white 0
+add {0.1921568627 0.6039215686 0.5137254902 0}
+black_clamp false
+maskChannelInput matte_mg.green
+mix {{overallmix}}
+name Grade10
+disable {{1-matte_mg.green}}
+}
+Grade {
+white 0
+add {0.7254901961 0.6352941176 0.5333333333 0}
+black_clamp false
+maskChannelInput matte_mg.blue
+mix {{overallmix}}
+name Grade11
+disable {{1-matte_mg.blue}}
+}
+Grade {
+white 0
+add {0.6784313725 0.537254902 0.6431372549 0}
+black_clamp false
+maskChannelInput matte_mg.alpha
+mix {{overallmix}}
+name Grade12
+selected true
+disable {{1-matte_mg.alpha}}
+}
+set N6dfab00 [stack 0]
+Output {
+name Output1
+xpos -152
+ypos 217
+}
+push $N6dfab00
+Viewer {
+frame_range 1001-1047
+viewerProcess "BalancedView (rec1886)"
+name Viewer1
+xpos 89
+ypos 227
+}
+end_group
