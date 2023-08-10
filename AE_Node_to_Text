@@ -1,0 +1,22 @@
+set cut_paste_input [stack 0]
+version 13.2 v8
+push $cut_paste_input
+NoOp {
+name AE_Node_to_Text
+tile_color 0xff9e00ff
+selected true
+xpos 3943
+ypos 15326
+hide_input true
+addUserKnob {20 User}
+addUserKnob {26 text l "" +STARTLINE T "<font size=200><b>AE Node to Text  &#x2635;"}
+addUserKnob {26 ""}
+addUserKnob {26 text_1 l "" +STARTLINE T "select the nodes\nyou want to convert\nthen press:   "}
+addUserKnob {22 write l "<b><font color = orange>Write to Text" -STARTLINE T "def nodeToText():\n    import getpass\n    \n    # creating the clipboard text file in the user file path\n    user = getpass.getuser()\n    tempFile = \"/data/share/%s/nuke_Clipboard.txt\" % user\n    open(tempFile, \"w\")\n    \n    \n    # selected node\n    selnode = nuke.selectedNode()\n    xpos = selnode\['xpos'].value()\n    ypos = selnode\['ypos'].value()\n    \n    # storing the selected node in tempFile\n    nuke.nodeCopy(tempFile)\n    \n    \n    # creating the Switch node\n    tonode = nuke.createNode('AppendClip',  inpanel = False)\n    \n    # deselect node\n    selnode.setSelected(False)\n    \n    # connection the inputs\n    for i in range(selnode.inputs()):\n        tonode.setInput(i,selnode.input(i))\n    \n    # tonode rename\n    getName = selnode.name()\n    nuke.delete(selnode)\n    tonode.setName(getName)\n    tonode\['label'].setValue(\"<b>LOCKED\")\n    \n    # fetching data from the tempFile as a string\n    with open(tempFile, 'r') as file:\n    \n        # Read the entire contents of the file as a string\n        file_contents = file.read()\n    \n    # Create a Multiline_Eval_Knob\n    text_knob = nuke.Multiline_Eval_String_Knob('text_input', 'Text Input', file_contents)\n    \n    # Add the knob to the Read node\n    tonode.addKnob(text_knob)\n    \n    # Add the get Node Button\n    \n    button_knob = nuke.PyScript_Knob('button_knob','Get Node','import getpass\\nuser = getpass.getuser()\\ntempFile = \"/data/share/%s/nuke_Clipboard.txt\" % user\\nnodeText  = nuke.thisNode()\[\"text_input\"].getText()\\nxpos = nuke.thisNode()\[\"xpos\"].value()\\nypos = nuke.thisNode()\[\"ypos\"].value()\\nwith open(tempFile, \"w\") as f:\\n    f.write(nodeText)\\nnuke.thisNode().setName(\"tempName\")\\nnuke.nodePaste(tempFile)\\nfor i in range(nuke.thisNode().inputs()):\\n    nuke.selectedNode().setInput(i,nuke.thisNode().input(i))\\nnuke.delete(nuke.thisNode())\\nnuke.selectedNode().setXpos(int(xpos))\\nnuke.selectedNode().setYpos(int(ypos))\\nnuke.selectedNode().setSelected(False)')\n    \n    tonode.addKnob(button_knob)\n    tonode.setXpos(int(xpos))\n    tonode.setYpos(int(ypos))\n\nfor n in nuke.selectedNodes():\n    if n\['label'].value() != \"<b>LOCKED\":\n        n.selectOnly()\n        nodeToText()\n    else:\n        pass"}
+addUserKnob {22 getNodes l "<font color = SeaGreen><b>GET Nodes" -STARTLINE T "def getAll():\n    for n in nuke.allNodes():\n        if n.knob('button_knob'):\n            n.selectOnly()\n            n\['button_knob'].execute()\n        else:\n            pass\n\ndef getSelected():\n    for n in nuke.selectedNodes():\n        if n.knob('button_knob'):\n            n.selectOnly()\n            n\['button_knob'].execute()\n        else:\n            pass\n\nif nuke.thisNode()\['pulldown'].value() == \"All Nodes\":\n    getAll()\nelse:\n    getSelected()"}
+addUserKnob {4 pulldown l "" -STARTLINE M {"All Nodes" Selected "" "" "" "" "" "" "" "" ""}}
+pulldown Selected
+addUserKnob {22 findNodes l "<font color = gray><b>Find Nodes" -STARTLINE T "nodesList = \[]\n\nfor n in nuke.allNodes(\"AppendClip\"):\n    if n\[\"label\"].value() == \"<b>LOCKED\":\n        n.setSelected(True)\n        nodesList.append(n.name())\n\nmessage = \"\\n\".join(nodesList)\nnuke.message(message)"}
+addUserKnob {26 ""}
+addUserKnob {26 text_2 l "" +STARTLINE T "<font color = gray>.: by Ali Ehtemami"}
+}
